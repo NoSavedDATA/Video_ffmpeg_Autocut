@@ -77,7 +77,7 @@ if __name__=="__main__":
 
     ### Get Audio
     if not os.path.exists("audio.mp3"):
-        subprocess.run(f'ffmpeg -i 1.mp4 -b:a 320k -map a audio.mp3', shell=True)
+        subprocess.run(f'ffmpeg -i cat.mp4 -b:a 320k -map a audio.mp3', shell=True)
 
     
     ### Process Wav
@@ -90,13 +90,14 @@ if __name__=="__main__":
     offset = 0
     
     voice_less_segs = [] 
-    while offset<audio_len and offset<600*4*sec:
+    print(f"Get segments")
+    while offset<audio_len:
         wav_window = wav[offset:offset+window]
         avg = wav_window.sum()
 
         if (avg<50):
             seg_start = offset
-            while(avg<50):
+            while(avg<50 and offset<audio_len):
                 seg_end = offset + window
 
                 offset+=hop//2
@@ -120,7 +121,7 @@ if __name__=="__main__":
         print(f"\n")
 
         out_file = f"segments/{i}.mp4"
-        subprocess.run(f"ffmpeg -ss {start_time.to_str()} -to {end_time.to_str()} -i 1.mp4 -c copy -avoid_negative_ts 1 {out_file}", shell=True)
+        subprocess.run(f"ffmpeg -ss {start_time.to_str()} -to {end_time.to_str()} -i cat.mp4 -c copy -avoid_negative_ts 1 {out_file}", shell=True)
 
         with open("out_segs.txt", "a") as f:
             f.write(f"file \'{out_file}\'\n")
@@ -128,7 +129,7 @@ if __name__=="__main__":
 
 
     out_file = f"segments/final.mp4"
-    subprocess.run(f"ffmpeg -ss {start_time.to_str()} -i 1.mp4 -c copy -avoid_negative_ts 1 {out_file}", shell=True)
+    subprocess.run(f"ffmpeg -ss {start_time.to_str()} -i cat.mp4 -c copy -avoid_negative_ts 1 {out_file}", shell=True)
 
     with open("out_segs.txt", "a") as f:
         f.write(f"file \'{out_file}\'\n")
